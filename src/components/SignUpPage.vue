@@ -1,18 +1,73 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import axios from 'axios'
+
+const emit = defineEmits(['login'])
+
+// Define form data as reactive variables
+const email = ref('')
+const username = ref('')
+const fullName = ref('')
+const password = ref('')
+
+// Submit function to handle form data
+const submitForm = async () => {
+  try {
+    const formData = {
+      email: email.value,
+      username: username.value,
+      name: fullName.value,
+      password: password.value,
+    }
+    console.log('Form data being sent:', formData)
+    const response = await axios.post('http://localhost:3000/api/users/registerUser', formData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    console.log('User created successfully:', response.data)
+  } catch (error) {
+    // Check if the error is due to the server or network
+    if (axios.isAxiosError(error)) {
+      // Handle Axios-specific errors
+      if (error.response) {
+        console.error('Signup failed:', error.response.data.message || error.response.data)
+      } else if (error.request) {
+        console.error('No response from server:', error.request)
+      } else {
+        console.error('Axios error:', error.message)
+      }
+    } else {
+      // Handle non-Axios errors
+      console.error('Unexpected error:', error)
+    }
+  }
+}
+</script>
 
 <template>
   <div class="signupBox">
-    <div class="signupcontent">
-      <div><input type="email" placeholder="E-mail" class="input" /></div>
-      <div><input type="text" placeholder="Username" class="input" /></div>
-      <div><input type="text" placeholder="Full Name" class="input" /></div>
-      <div><input type="password" placeholder="Password" class="input" /></div>
-      <div class="buttonBox"><button class="authbutton">Log In</button></div>
-    </div>
-    <div class="authchange">
-      Already have an account?
-      <button class="authchangeB">Log In</button>
-    </div>
+    <form @submit.prevent="submitForm">
+      <div class="signupcontent">
+        <div>
+          <input type="email" v-model="email" placeholder="E-mail" class="input" required />
+        </div>
+        <div>
+          <input type="text" v-model="username" placeholder="Username" class="input" required />
+        </div>
+        <div>
+          <input type="text" v-model="fullName" placeholder="Full Name" class="input" required />
+        </div>
+        <div>
+          <input type="password" v-model="password" placeholder="Password" class="input" required />
+        </div>
+        <div class="buttonBox"><button class="authbutton" type="submit">Sign Up</button></div>
+      </div>
+      <div class="authchange">
+        Already have an account?
+        <button class="authchangeB" @click="emit('login')">Log In</button>
+      </div>
+    </form>
   </div>
 </template>
 

@@ -1,5 +1,19 @@
 <script setup lang="ts">
-import LoginPage from './SignUpPage.vue'
+import { ref } from 'vue'
+import SignUpPage from './SignUpPage.vue'
+import LoginPage from './LoginPage.vue'
+
+
+const currentStep = ref(1)
+
+
+const signUp = (): void => {
+  currentStep.value = 2
+}
+
+const login = (): void => {
+  currentStep.value = 1
+}
 </script>
 
 <template>
@@ -13,7 +27,16 @@ import LoginPage from './SignUpPage.vue'
         </div>
         <h2 class="subtext">Connect. Chat. Zap your world.</h2>
         <div class="credentialmaterial">
-          <LoginPage />
+          <component
+            :is="
+              {
+                1: LoginPage,
+                2: SignUpPage,
+              }[currentStep]
+            "
+            @login="login"
+            @signUp="signUp"
+          />
         </div>
         <h5 class="copyright">© Hiten Gupta 2025</h5>
       </div>
