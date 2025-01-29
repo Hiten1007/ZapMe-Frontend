@@ -1,21 +1,82 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import ZapsChats from './ZapsChats.vue';
+import ZappersChats from './ZappersChats.vue';
+import ArchivedZaps from './ArchivedZaps.vue';
+
+const display = ref(0)
+
+const showZaps  = () : void => {
+  display.value = 0;
+}
+
+const showZapplets  = () : void => {
+  display.value = 1;
+}
+
+const showZapped  = () : void => {
+  display.value = 2;
+}
+
+</script>
 
 <template>
-  <div>
+  <div class="page">
     <div class="navbar">
       <div class="chatbuttons">
-        <button><img src="../assets/image copy 2.png" height="24" /></button>
-        <button><img src="../assets/image copy 3.png" height="24" /></button>
-        <button><img src="../assets/image copy 4.png" height="24" /></button>
+        <button class="chatbutton" @click="showZaps"><img src="../assets/image copy 2.png" height="24rem"  /></button>
+        <button class="chatbutton" @click="showZapplets"><img src="../assets/image copy 3.png" height="24rem"  /></button>
+        <button class="chatbutton" @click="showZapped"><img src="../assets/image copy 4.png" height="24rem"  /></button>
       </div>
       <div class="usersbuttons">
-        <button><img src="../assets/image copy 5.png" /></button>
-        <div></div>
+        <button class="chatbutton"><img src="../assets/image copy 6.png" height = "24rem" /></button>
+        <button class="chatbutton"><img src = "../assets//image copy 7.png" class = "profilepic" /></button>
       </div>
     </div>
-    <!--chats section-->
-    <div></div>
-    <!--chatbox section-->
-    <div></div>
+
+
+    <component :is = "{
+      0: ZapsChats,
+      1:ZappersChats,
+      2:ArchivedZaps
+    }[display]" 
+   />
+    
   </div>
 </template>
+
+<style>
+.page{
+  display: flex;
+}
+.navbar{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:100vh;
+  width:5.775vw;
+  background-color :#FF6633;
+  padding-top:1.75rem;
+  padding-bottom: 1.75rem;
+ 
+}
+
+.chatbuttons, .usersbuttons{
+  display: flex;
+  flex-direction: column;
+  gap:1rem
+}
+
+.profilepic{
+  width:2.5rem;
+  height:2.5rem;
+  border-radius: 25rem;
+}
+
+.chatbutton{
+  background-color:transparent;
+  outline: none;
+  border:none
+}
+
+</style>
