@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import ZapsChats from './ZapsChats.vue';
 import ZappersChats from './ZappersChats.vue';
 import ArchivedZaps from './ArchivedZaps.vue';
+import ZapProfile from './ZapProfile.vue';
 
 const display = ref(0)
 
@@ -18,6 +19,10 @@ const showZapped  = () : void => {
   display.value = 2;
 }
 
+const showProfile = () : void => {
+  display.value = 3;
+}
+
 </script>
 
 <template>
@@ -30,7 +35,7 @@ const showZapped  = () : void => {
       </div>
       <div class="usersbuttons">
         <button class="chatbutton"><img src="../assets/image copy 6.png" height = "24rem" /></button>
-        <button class="chatbutton"><img src = "../assets//image copy 7.png" class = "profilepic" /></button>
+        <button class="chatbutton"><img src = "../assets//image copy 7.png" class = "profilepic" @click = "showProfile" /></button>
       </div>
     </div>
 
@@ -38,7 +43,8 @@ const showZapped  = () : void => {
     <component :is = "{
       0: ZapsChats,
       1:ZappersChats,
-      2:ArchivedZaps
+      2:ArchivedZaps, 
+      3:ZapProfile
     }[display]" 
    />
     
