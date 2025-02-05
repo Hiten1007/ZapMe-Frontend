@@ -1,30 +1,63 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+import axios from 'axios'
 
+const searchquery = ref ('')
+const users = ref<{id : number, username : string}[]>([])
 
 
 const emit = defineEmits(['toggle', 'togglei'])
 
 const  expanded = defineModel()
 
+const fetchUsers = async() => {
+  if(!searchquery.value.trim()){
+    users.value = []
+    return;
+  }
+  try{
+    const link = 'http://localhost:3000/api/content/search?q=s'
+    const response = await axios.get(link, {
+      withCredentials :true
+    })
+    users.value =response.data
+  }
+  catch(error){
+    console.error(error)
+    users.value = [];
+  }
+}
+
+watch(searchquery, fetchUsers)
 
 </script>
 
 <template>
-    <div 
-      class="searchbar" 
-      :class="{ expanded: expanded }" 
-      @click="emit('toggle')"
-    >
-      <img src="../assets/image copy 5.png" class="search-icon" @click.stop="emit('togglei')" />
-      <input 
-        v-show="expanded"
-        type="text" 
-        placeholder="Search..." 
-        class="search-input"
-        ref = "searchbar"
-        autofocus
-      />
+    <div>
+      <div
+        class="searchbar"
+        :class="{ expanded: expanded }"
+        @click="emit('toggle')"
+      >
+        <img src="../assets/image copy 5.png" class="search-icon" @click.stop="emit('togglei')" />
+        <input
+          v-show="expanded"
+          type="text"
+          placeholder="Search..."
+          class="search-input"
+          v-model="searchquery"
+          autofocus
+        />
+      </div>
+      <div v-if="users.length > 0">
+  <ul>
+    <li v-for="user in users" :key="user.id">
+      <div>{{ user.username }}</div>
+    </li>
+  </ul>
+  </div>
     </div>
+
 </template>
 
 <style scoped>
