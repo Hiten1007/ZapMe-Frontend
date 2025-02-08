@@ -1,11 +1,27 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref,  } from 'vue'
 import ZapsChats from './ZapsChats.vue';
 import ZappersChats from './ZappersChats.vue';
 import ArchivedZaps from './ArchivedZaps.vue';
 import ZapProfile from './ZapProfile.vue';
+import axios from 'axios'
 
 const display = ref(0)
+
+const url = ref({imageUrl : ''})
+
+const getimage = async() => {
+  try{
+    const response = await axios.get('http://localhost:3000/api/content', {withCredentials : true})
+    url.value = response.data
+    console.log(url.value)
+  }
+  catch(error){
+    console.error(error)
+  }
+}
+
+getimage()
 
 const showZaps  = () : void => {
   display.value = 0;
@@ -23,6 +39,8 @@ const showProfile = () : void => {
   display.value = 3;
 }
 
+
+
 </script>
 
 <template>
@@ -35,7 +53,7 @@ const showProfile = () : void => {
       </div>
       <div class="usersbuttons">
         <button class="chatbutton"><img src="../assets/image copy 6.png" height = "24rem" /></button>
-        <button class="chatbutton"><img src = "../assets//image copy 7.png" class = "profilepic" @click = "showProfile" /></button>
+        <button class="chatbutton"><img :src = "url.imageUrl" class = "profilepic" @click = "showProfile" /></button>
       </div>
     </div>
 

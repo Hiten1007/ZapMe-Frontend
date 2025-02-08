@@ -73,7 +73,7 @@ watch(searchquery, fetchUsers)
   align-items: center;
   transition: all 0.3s ease-in-out;
   cursor: pointer;
-  padding: 0.2rem 1rem;
+  padding: 0.2rem 0.5rem;
 }
 
 /* Expanding the search bar */

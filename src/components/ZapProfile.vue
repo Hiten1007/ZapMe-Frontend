@@ -1,4 +1,60 @@
 <script setup lang = "ts">
+import axios from 'axios'
+import { ref, onMounted } from 'vue';
+import { type User } from '../interfaces'
+import UpdateUserInfo from './UpdateUserInfo.vue';
+
+
+const aboutContent = ref("")
+const user = ref<User | null>(null);
+const showAbout = ref(true)
+const editUserInfo = ref(false)
+
+const showEditForm = () => {
+    editUserInfo.value = true
+}
+
+const hideEditForm = () => {
+    editUserInfo.value = false
+}
+
+const editAbout = () => {
+    showAbout.value = false
+}
+
+const cancelEditAbout = () => {
+    showAbout.value = true
+}
+
+const updateAbout = async () => {
+    try{
+
+        await axios.put('http://localhost:3000/api/users/profile/about', { about : aboutContent.value}, {withCredentials: true})
+        if(user.value){
+            user.value.userInfo.about = aboutContent.value
+        }
+       
+        showAbout.value = true
+    }
+    catch(error){
+        console.log(error)
+    }
+}
+
+
+const getUser = async () => {
+    try {
+        const response = await axios.get<User>('http://localhost:3000/api/users/profile', { withCredentials: true });
+        user.value = response.data;
+        aboutContent.value = user.value.userInfo.about
+        console.log(user.value)
+    } catch (error) {
+        console.error("Error fetching user:", error);
+    }
+};
+
+onMounted(getUser)
+
 </script>
 
 <template>
@@ -9,7 +65,7 @@
         <div class="mainarea">
             <div class="profileinfobox">
                 <div class="profileinfo">
-                    <div class="chatbutton"><img src = "../assets//image copy 7.png" class = "profilepic" /></div>
+                    <div class="chatbutton"><img :src = "user?.userInfo.imageUrl" class = "profilepic" @click="editImage" /></div>
                     <div class="infobox">
                         <div class="friends">
                             <h2 class = friendstext>Friends</h2>
@@ -17,17 +73,17 @@
                         </div>
                         <div>
                             <div class="usernamebox">
-                                <h1 class="username">username</h1>
-                                <img src="../assets/image copy 10.png" class="usernameedit" />
+                                <h1 class="username">{{user?.userInfo.username}}</h1>
+                                <img src="../assets/image copy 10.png" class="usernameedit" @click="showEditForm" />
                             </div>
                             <div class="personbox">
-                                <h2 class="realname">name</h2>
-                                <div class="attributes">
-                                   <p class="attribute">Extrovert</p>
+                                <h2 class="realname">{{user?.userInfo.name}}</h2>
+                                <div class="attributes" v-if="user?.userInfo.attributes?.length">
+                                   <p class="attribute">{{user?.userInfo.attributes[0]}}</p>
                                    <div class="dot"></div>
-                                   <p class="attribute">Outgoing</p>
+                                   <p class="attribute">{{user?.userInfo.attributes[1]}}</p>
                                    <div class="dot"></div>
-                                   <p class="attribute">Batman</p>
+                                   <p class="attribute">{{user?.userInfo.attributes[2]}}</p>
                                 </div>
                             </div>
                         </div>
@@ -59,15 +115,43 @@
             <div class="aboutsection">
                 <div class="aboutheader">
                     <h2 class="abouttext">About Me</h2>
-                    <img src="../assets/image copy 14.png" class="abouteditimg" />
+                    <img src="../assets/image copy 14.png" class="abouteditimg" @click="editAbout" v-if="showAbout" />
+                    <div class="abouteditbuttons" v-else>
+                        <img  src="../assets/image copy 15.png" @click="cancelEditAbout" height = "21rem" />
+                        <img src="../assets/image copy 16.png" @click="updateAbout" height = "21rem" />
+                    </div>
+                    
                 </div>
-                <textarea class="textbox" placeholder="Tell Us About Yourself..."> </textarea>
+                <p class="textbox aboutcontent" v-if="showAbout" >{{ user?.userInfo.about }}</p>
+                <textarea class="textbox" placeholder="Tell Us About Yourself..." v-model="aboutContent" v-else></textarea>
             </div>
         </div>
+        <UpdateUserInfo @hideEditForm = "hideEditForm" @getUser = "getUser" v-if="editUserInfo" :user="user" />
     </div>
 </template>
 
 <style scoped>
+
+.aboutcontent{
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 1.2rem;
+line-height: 1.4rem;
+letter-spacing: 0.05rem;
+
+color: #000000;
+
+}
+
+
+
+.abouteditbuttons{
+    display: flex;
+    gap:0.8rem
+}
+
 .abouteditimg{
     width:1.7rem;
     height:1.7rem
@@ -95,6 +179,8 @@ color: #000000;
 }
 
 .textbox{
+    
+    
     resize: none;
     height:8rem;
     width:33rem;
@@ -106,6 +192,7 @@ background: #D9D9D9;
 padding: 1.2rem;
 font-size: 0.9rem
 }
+
 
 .aboutsection{
     margin:2rem 0rem 0rem 15rem

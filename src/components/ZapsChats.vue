@@ -57,8 +57,7 @@ const toggleicon = () => {
 
 
 .logo {
-  padding-top: 0.4rem;
-  height: 1.98rem;
+  padding-top:0.65rem; height : 1.98rem
 }
 
 .divider {
