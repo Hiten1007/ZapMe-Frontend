@@ -66,10 +66,11 @@ const showProfile = () : void => {
     }[display]" 
    />
     
+   
   </div>
 </template>
 
-<style>
+<style scoped>
 .page{
   display: flex;
 }
@@ -78,7 +79,7 @@ const showProfile = () : void => {
   flex-direction: column;
   justify-content: space-between;
   height:100vh;
-  width:5.775vw;
+  width:5.5em;
   background-color :#FF6633;
   padding-top:1.75rem;
   padding-bottom: 1.75rem;

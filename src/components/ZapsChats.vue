@@ -2,6 +2,11 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import SearchBar from './SearchBar.vue'
+import ZapLayoutDefault from './ZapLayoutDefault.vue'
+import ChatComponent from './ChatComponent.vue'
+import { type User } from '@/interfaces'
+
+const chat = ref(0)
 
 const getZaps = async () => {
   try {
@@ -14,11 +19,14 @@ const getZaps = async () => {
 }
 
 window.onclick = function (event) { 
+  event.stopPropagation()
   const bar = document.querySelector('.searchbar')
 
   const input = document.querySelector('.search-input')
 
-  if(event.target !== bar && event.target !== input){
+  const profile = document.querySelector('.searchprofile')
+
+  if(event.target !== bar && event.target !== input && event.target !== profile){
     expanded.value = false;
   }
 }
@@ -32,6 +40,15 @@ const toggleSearch = () => {
 const toggleicon = () => {
   expanded.value = !expanded.value;
 };
+
+const users = ref<User|null>(null)
+
+const displayConvo = (user : User) => {
+users.value = user
+chat.value = 1
+}
+
+
 </script>
 
 <template>
@@ -45,8 +62,13 @@ const toggleicon = () => {
     <hr class="divider" />
 
     <!-- Search Bar -->
-     <SearchBar @toggle="toggleSearch" @togglei = "toggleicon" v-model="expanded" />
+     <SearchBar @toggle="toggleSearch" @togglei = "toggleicon" v-model="expanded" @display-convo="displayConvo" />
   </div>
+  <component class="chatbox" :is = "{
+    0:ZapLayoutDefault,
+    1:ChatComponent
+   }[chat]"
+   :users = users  />
 </template>
 <style scoped>
 .container {

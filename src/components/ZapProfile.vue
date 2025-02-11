@@ -65,7 +65,7 @@ onMounted(getUser)
         <div class="mainarea">
             <div class="profileinfobox">
                 <div class="profileinfo">
-                    <div class="chatbutton"><img :src = "user?.userInfo.imageUrl" class = "profilepic" @click="editImage" /></div>
+                    <div class="chatbutton"><img :src = "user?.userInfo.imageUrl" class = "profilepic"  /></div>
                     <div class="infobox">
                         <div class="friends">
                             <h2 class = friendstext>Friends</h2>

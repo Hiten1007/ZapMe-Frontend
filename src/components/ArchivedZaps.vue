@@ -1,4 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import ZapLayoutDefault from './ZapLayoutDefault.vue'
+import ChatComponent from './ChatComponent.vue'
+import {ref} from 'vue'
+
+const chat = ref(1)
+</script>
 
 <template>
  <div style="width:25vw">
@@ -12,6 +18,10 @@
     </div>
     <div></div>
   </div>
+  <component class="chatbox" :is = "{
+    0:ZapLayoutDefault,
+    1:ChatComponent
+   }[chat]" />
 </template>
 
 <style scoped>
