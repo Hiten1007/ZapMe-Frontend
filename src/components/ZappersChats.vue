@@ -3,7 +3,7 @@ import ZapLayoutDefault from './ZapLayoutDefault.vue'
 import ChatComponent from './ChatComponent.vue'
 import {ref} from 'vue'
 
-const chat = ref(1)
+const chat = ref(0)
 </script>
 
 <template>
@@ -11,6 +11,9 @@ const chat = ref(1)
     <div class="header">
       <h1 class="head" style="margin: 0; padding:0">Zapplets</h1>
       <img src="../assets/image copy 8.png"  style="padding-top:0.65rem; height : 1.98rem" />
+      <div>
+        <h4>Add zapplet</h4>
+      </div>
     </div>
     <hr style="margin:0.5rem 0.4rem; background-color: #ff4d12; border:none; height:0.09rem" />
     <div class="searchbar">

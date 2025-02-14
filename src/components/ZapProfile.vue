@@ -9,6 +9,7 @@ const aboutContent = ref("")
 const user = ref<User | null>(null);
 const showAbout = ref(true)
 const editUserInfo = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null);
 
 const showEditForm = () => {
     editUserInfo.value = true
@@ -53,19 +54,57 @@ const getUser = async () => {
     }
 };
 
-onMounted(getUser)
+const updatePhoto = () => {
+  fileInput.value?.click();
+};
+
+// Called when a new file is selected
+const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (!target.files || target.files.length === 0) return;
+  
+  const file = target.files[0];
+  
+  // Create a FormData object to send the file to your backend
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  try {
+    const response = await axios.put('http://localhost:3000/api/users/profile/profilephoto', formData, { withCredentials: true });
+    // Update the user's profile photo with the new URL returned by the backend
+    if (user.value) {
+   
+      user.value.userInfo.imageUrl = response.data.updatedUser.imageUrl;
+     
+    }
+  } catch (error) {
+    console.error("Error updating photo:", error);
+  }
+};
+
+onMounted(getUser);
 
 </script>
 
 <template>
-    <div class="profilebox">
-        <h1 class="profileheader">Profile</h1>
-        <hr class="line" />
-
-        <div class="mainarea">
-            <div class="profileinfobox">
-                <div class="profileinfo">
-                    <div class="chatbutton"><img :src = "user?.userInfo.imageUrl" class = "profilepic"  /></div>
+  <div class="profilebox">
+    <h1 class="profileheader">Profile</h1>
+    <hr class="line" />
+    <div class="mainarea">
+      <div class="profileinfobox">
+        <div class="profileinfo">
+          <div class="chatbutton">
+            <!-- The image uses your CSS dimensions -->
+            <img :src="user?.userInfo.imageUrl" class="profilepic" @click="updatePhoto" />
+          </div>
+          <!-- Hidden file input triggered when the image is clicked -->
+          <input 
+            ref="fileInput" 
+            type="file" 
+            accept="image/jpeg, image/png" 
+            style="display: none" 
+            @change="handleFileChange" 
+          />
                     <div class="infobox">
                         <div class="friends">
                             <h2 class = friendstext>Friends</h2>
@@ -415,7 +454,9 @@ height:0.0925rem
 .profilepic{
     border-radius: 25rem;
     width:11rem;
-    height:11rem
+    height:11rem;
+    cursor:pointer;
+    object-fit: cover;
 }
 
 </style>

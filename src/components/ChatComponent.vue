@@ -8,6 +8,29 @@ watch(user, ()=>{
     message.value = '';
 })
 
+const socket = new WebSocket("ws://localhost:3000");
+
+socket.onopen = () => {
+  console.log("Connected to WebSocket server");
+  // Send a message, e.g., to register the user or to start chatting
+  console.log(user.users.id)
+  socket.send(JSON.stringify({ type: "register", userId :`${user.users.id}`}));
+};
+
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log("New message:", data);
+};
+
+// Send a chat message when needed:
+function sendChatMessage(content: string) {
+    if(content === ''){
+        return;
+    }
+  socket.send(JSON.stringify({ type: "onemessage", content }));
+  message.value = ''
+}
+
 </script>
 
 <template>
@@ -32,7 +55,7 @@ watch(user, ()=>{
             <div class="inputbar">
                 <img src="../assets/image copy 20.png" alt="" height="16rem">
                 <input type="text" class="input" v-model = "message" />
-                <img src="../assets/image copy 21.png" alt="" height="16rem">
+                <img src="../assets/image copy 21.png" alt="" height="16rem" @click="sendChatMessage(message)">
             </div>
         </div>
     </div>

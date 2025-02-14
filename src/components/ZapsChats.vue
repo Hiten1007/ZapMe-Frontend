@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import SearchBar from './SearchBar.vue'
 import ZapLayoutDefault from './ZapLayoutDefault.vue'
 import ChatComponent from './ChatComponent.vue'
@@ -8,15 +8,23 @@ import { type User } from '@/interfaces'
 
 const chat = ref(0)
 
+const zaps = ref([])
+
 const getZaps = async () => {
   try {
-    const zaps = await axios.get('http://localhost:3000/api/content/zaps');
+    const response = await axios.get('http://localhost:3000/api/content/', {withCredentials : true});
+    zaps.value = response.data;
+    console.log(zaps.value)
+    console.log("mmm")
   }
   catch(error){
     console.error(error)
   }
   
 }
+
+
+
 
 window.onclick = function (event) { 
   event.stopPropagation()
@@ -48,6 +56,7 @@ users.value = user
 chat.value = 1
 }
 
+onMounted(getZaps)
 
 </script>
 

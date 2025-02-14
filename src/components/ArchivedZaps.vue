@@ -3,7 +3,7 @@ import ZapLayoutDefault from './ZapLayoutDefault.vue'
 import ChatComponent from './ChatComponent.vue'
 import {ref} from 'vue'
 
-const chat = ref(1)
+const chat = ref(0)
 </script>
 
 <template>
