@@ -2,9 +2,12 @@
 import {ref, watch} from 'vue'
 
 const message = ref('')
-const user = defineProps(['users'])
+const {users} = defineProps(['users'])
+const emit = defineEmits(['getZaps'])
+// const messages = ref([])
+//chatid is received from the websocket to send a message
 
-watch(user, ()=>{
+watch(()=>users, ()=>{
     message.value = '';
 })
 
@@ -12,9 +15,13 @@ const socket = new WebSocket("ws://localhost:3000");
 
 socket.onopen = () => {
   console.log("Connected to WebSocket server");
-  // Send a message, e.g., to register the user or to start chatting
-  console.log(user.users.id)
-  socket.send(JSON.stringify({ type: "register", userId :`${user.users.id}`}));
+  console.log(users.id)
+  socket.send(JSON.stringify({ type: "register", userId :`${users.id}`}));
+  setTimeout(() => {
+    emit('getZaps');
+  }, 1000); // Allow some time for the WebSocket connection
+
+ 
 };
 
 socket.onmessage = (event) => {
@@ -27,8 +34,11 @@ function sendChatMessage(content: string) {
     if(content === ''){
         return;
     }
-  socket.send(JSON.stringify({ type: "onemessage", content }));
+  socket.send(JSON.stringify({ type: "onemessage", userId :`${users.id}` ,content }));
   message.value = ''
+  setTimeout(() => {
+    emit('getZaps');
+  }, 500); // Allow some time for the WebSocket connection
 }
 
 </script>
@@ -38,10 +48,10 @@ function sendChatMessage(content: string) {
         <!---header-->
         <div class="profilebar">
             <div class="profile">
-                <img :src="user.users?.imageUrl" class="profilepic" />
+                <img :src="users?.imageUrl" class="profilepic" />
                 <div class="userinfo">
-                    <div class="username">{{ user.users?.username }}</div>
-                    <div class="name">{{ user.users?.name }}</div>
+                    <div class="username">{{ users?.username }}</div>
+                    <div class="name">{{ users?.name }}</div>
                 </div>
             </div>
             <img class="profileinteract" src="../assets/image copy 18.png" />
