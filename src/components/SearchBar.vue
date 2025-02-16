@@ -104,7 +104,7 @@ color: #000000;
 }
 
 .bottomline{
-  margin:0rem 0.4rem; background-color: #ff4d12; border:none; height:1px;
+  margin:1rem 0rem; background-color: #ff4d12; border:none; height:0.25rem;
  
 
 }

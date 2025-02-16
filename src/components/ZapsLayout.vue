@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { ref,  } from 'vue'
+import { ref, provide } from 'vue'
 import ZapsChats from './ZapsChats.vue';
 import ZappersChats from './ZappersChats.vue';
 import ArchivedZaps from './ArchivedZaps.vue';
 import ZapProfile from './ZapProfile.vue';
 import axios from 'axios'
+import type { AUser } from '@/interfaces';
+import { key } from '@/injectkeys';
+
 
 const display = ref(0)
 
@@ -37,8 +40,19 @@ const showZapped  = () : void => {
 
 const showProfile = () : void => {
   display.value = 3;
+  console.log("click")
+  profileUser.value = null
 }
 
+const profileUser = ref<AUser|null>(null)
+
+const showotherProfile = (user:AUser) : void => {
+  display.value = 3;
+  profileUser.value = user
+  console.log(user)
+}
+
+provide(key, showotherProfile)
 
 
 </script>
@@ -64,7 +78,7 @@ const showProfile = () : void => {
       2:ArchivedZaps, 
       3:ZapProfile
     }[display]" 
-   
+    :profileUserID="profileUser ? profileUser.id : 0"
    />
     
    

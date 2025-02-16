@@ -10,9 +10,11 @@ export interface User {
    }
   }
 
-  interface Message {
+export  interface Message {
    content: string;
    createdAt: string;
+   id:number;
+   userId:number;
  }
  
  export interface AUser {

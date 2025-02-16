@@ -6,6 +6,8 @@ import ZapLayoutDefault from './ZapLayoutDefault.vue'
 import ChatComponent from './ChatComponent.vue'
 import { type AUser, type Chat } from '@/interfaces'
 
+defineProps<{ profileUserID: number }>();
+
 defineEmits(['displayConvo'])
 
 const chat = ref(0)
@@ -16,8 +18,6 @@ const getZaps = async () => {
   try {
     const response = await axios.get('http://localhost:3000/api/content/zaps', {withCredentials : true});
     zaps.value = response.data;
- 
-    console.log(zaps.value)
 
   }
   catch(error){
@@ -25,9 +25,6 @@ const getZaps = async () => {
   }
   
 }
-
-
-
 
 window.onclick = function (event) { 
   event.stopPropagation()
@@ -77,18 +74,20 @@ onMounted(getZaps)
     <!-- Search Bar -->
      <SearchBar @toggle="toggleSearch" @togglei = "toggleicon" v-model="expanded" @display-convo="displayConvo" />
      <div>
-      <div v-for="zap in zaps" :key="zap.id" class="zaps">
-      <div class="userprofile" @click = "displayConvo(zap.otherUser)">
-        <img :src = "zap.otherUser.imageUrl" class="searchimg" />
-        <div class="profileinfo">
-          <hr class="profileline" />
-          <div class="maininfo">
-            <div class="profileusername">{{ zap.otherUser.username }}</div>
-            <div class="profilemsg">{{ zap.messages[0]?.content }}</div>
+      <div class="zaps">
+        <div v-for="zap in zaps" :key="zap.id" >
+        <div class="userprofile" @click = "displayConvo(zap.otherUser)">
+          <img :src = "zap.otherUser.imageUrl" class="searchimg" />
+          <div class="profileinfo">
+            <hr class="profileline" />
+            <div class="maininfo">
+              <div class="profileusername">{{ zap.otherUser.username }}</div>
+              <div class="profilemsg">{{ zap.messages[0]?.content }}</div>
+            </div>
           </div>
         </div>
+            </div>
       </div>
-    </div>
      </div>
   </div>
   <component class="chatbox" :is = "{
@@ -100,8 +99,11 @@ onMounted(getZaps)
 <style scoped>
 
 .zaps{
-  width:80vh;
+  height:max-content;
   overflow: scroll;
+  display:flex;
+  flex-direction: column;
+  gap:0.5rem;
 }
 
 .profilemsg{
@@ -112,7 +114,8 @@ font-style: normal;
 font-weight: 400;
 font-size: 0.85rem;
 line-height: 1rem;
-
+height:1rem;
+overflow-y:hidden;
 color: rgba(0, 0, 0, 0.5);
 
 }
@@ -127,7 +130,7 @@ line-height: 1.2rem;
 /* identical to box height */
 
 color: #000000;
-
+margin-top:0.6rem
 
 }
 
@@ -138,7 +141,7 @@ color: #000000;
 
 
 .maininfo{
-  padding: 0.5rem 0 0 0;
+  padding: 0 0 0 0;
   display:flex;
   flex-direction: column;
   gap:0.15rem;
@@ -154,7 +157,7 @@ color: #000000;
 .userprofile{
   display: flex;
   padding: 0rem 0rem 0rem 1rem;
-  margin-bottom: 0.5rem;
+  
 }
 
 .searchimg{

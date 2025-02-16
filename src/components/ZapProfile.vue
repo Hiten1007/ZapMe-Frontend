@@ -1,9 +1,10 @@
 <script setup lang = "ts">
 import axios from 'axios'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { type User } from '../interfaces'
 import UpdateUserInfo from './UpdateUserInfo.vue';
 
+const {profileUserID} = defineProps(['profileUserID'])
 
 const aboutContent = ref("")
 const user = ref<User | null>(null);
@@ -54,6 +55,19 @@ const getUser = async () => {
     }
 };
 
+const getOtherUser = async () => {
+    try {
+        const response = await axios.get<User>(`http://localhost:3000/api/users/profile/${profileUserID}`, { withCredentials: true });
+        user.value = response.data;
+        aboutContent.value = user.value.userInfo.about
+        console.log(user.value)
+    } catch (error) {
+        console.error("Error fetching user:", error);
+    }
+};
+
+
+
 const updatePhoto = () => {
   fileInput.value?.click();
 };
@@ -82,7 +96,23 @@ const handleFileChange = async (event: Event) => {
   }
 };
 
-onMounted(getUser);
+onMounted(() => {
+    if(profileUserID !== 0){
+        getOtherUser()
+    }
+    else{
+        getUser();
+    }
+
+});
+
+onUnmounted(() => {user.value=null})
+
+watch(() => profileUserID, () => {
+    if(profileUserID === 0) {
+        getUser();
+    }
+})
 
 </script>
 
@@ -113,7 +143,7 @@ onMounted(getUser);
                         <div>
                             <div class="usernamebox">
                                 <h1 class="username">{{user?.userInfo.username}}</h1>
-                                <img src="../assets/image copy 10.png" class="usernameedit" @click="showEditForm" />
+                                <img src="../assets/image copy 10.png" class="usernameedit" @click="showEditForm" v-if="profileUserID === 0" />
                             </div>
                             <div class="personbox">
                                 <h2 class="realname">{{user?.userInfo.name}}</h2>
@@ -134,7 +164,7 @@ onMounted(getUser);
                         <button class="buttondiv">Connect</button>
                 </div>
             </div>
-            <div class="linksbox">
+            <div class="linksbox" style="display:none">
                 <div class = "linkstext">Connect : </div>
                 <div class="linkbox">
                     <div class="link">
@@ -154,8 +184,8 @@ onMounted(getUser);
             <div class="aboutsection">
                 <div class="aboutheader">
                     <h2 class="abouttext">About Me</h2>
-                    <img src="../assets/image copy 14.png" class="abouteditimg" @click="editAbout" v-if="showAbout" />
-                    <div class="abouteditbuttons" v-else>
+                    <img src="../assets/image copy 14.png" class="abouteditimg" @click="editAbout" v-if="showAbout && profileUserID === 0"  />
+                    <div class="abouteditbuttons" v-else-if="!showAbout">
                         <img  src="../assets/image copy 15.png" @click="cancelEditAbout" height = "21rem" />
                         <img src="../assets/image copy 16.png" @click="updateAbout" height = "21rem" />
                     </div>
@@ -198,8 +228,9 @@ color: #000000;
 
 .aboutheader{
     display:flex;
-    justify-content: space-between;
-    padding:0 1rem 0 1.25rem
+    justify-content:space-between;
+    padding:0 1rem 0 1.25rem;
+    width:38vw
 }
 
 .abouttext{
@@ -425,7 +456,7 @@ color: #000000;
 }
 .mainarea{
     display: grid;
-    grid-template: 1fr / 1fr 1fr;
+    grid-template: 1fr / 1fr;
     gap:1rem
 }
 .profileheader{

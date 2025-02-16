@@ -1,52 +1,150 @@
 <script setup lang ="ts">
-import {ref, watch} from 'vue'
+import type { AUser, Message } from '@/interfaces'
+import { onMounted, ref, watch, onUnmounted, nextTick, inject } from 'vue'
+import axios from 'axios'
+import { key } from '@/injectkeys'
 
 const message = ref('')
-const {users} = defineProps(['users'])
+const { users } = defineProps(['users'])
 const emit = defineEmits(['getZaps'])
-// const messages = ref([])
-//chatid is received from the websocket to send a message
+const chatId = ref(0)
+const messages = ref<Message[]>([])
+let socket: WebSocket | null = null; 
+const chatContainer = ref<HTMLElement | null>(null)
+const profilePage = inject<(user: AUser) => void>(key)
 
-watch(()=>users, ()=>{
-    message.value = '';
-})
 
-const socket = new WebSocket("ws://localhost:3000");
-
-socket.onopen = () => {
-  console.log("Connected to WebSocket server");
-  console.log(users.id)
-  socket.send(JSON.stringify({ type: "register", userId :`${users.id}`}));
-  setTimeout(() => {
-    emit('getZaps');
-  }, 1000); // Allow some time for the WebSocket connection
-
- 
-};
-
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  console.log("New message:", data);
-};
-
-// Send a chat message when needed:
-function sendChatMessage(content: string) {
-    if(content === ''){
-        return;
-    }
-  socket.send(JSON.stringify({ type: "onemessage", userId :`${users.id}` ,content }));
-  message.value = ''
-  setTimeout(() => {
-    emit('getZaps');
-  }, 500); // Allow some time for the WebSocket connection
+const showProf = () => {
+  if (profilePage) {
+    profilePage(users)
+}
 }
 
+// Fetch messages for a chat
+const getMessages = async () => {
+  if (!chatId.value) return;
+  try {
+   
+    const response = await axios.get(
+      `http://localhost:3000/api/content/zapmessages/${chatId.value}`,
+      { withCredentials: true }
+    );
+    messages.value = response.data;
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+  }
+};
+
+// Initialize WebSocket (only once)
+const setupWebSocket = () => {
+  if (socket) return; // Avoid multiple WebSocket instances
+
+  socket = new WebSocket('ws://localhost:3000');
+
+  socket.onopen = () => {
+    console.log('Connected to WebSocket server');
+    registerUser();
+  };
+
+  socket.onmessage = async (event) => {
+    const data = JSON.parse(event.data);
+    switch (data.type) {
+      case 'register':
+        console.log('Registered to chat:', data.id);
+        chatId.value = data.id;
+        await nextTick();
+        getMessages();
+        break;
+
+      case 'onemessage':
+        console.log('New message received:', data.message);
+        messages.value.push(data.message);
+        emit('getZaps')
+        break;
+
+      case 'error':
+        console.error('WebSocket Error:', data.message);
+        break;
+
+      default:
+        console.warn('Unknown event type:', data.type);
+    }
+  };
+
+  socket.onclose = () => {
+    socket = null;
+  };
+};
+
+// Register user in WebSocket when switching chats
+const registerUser = () => {
+  if (!socket || socket.readyState !== WebSocket.OPEN) return;
+  socket.send(JSON.stringify({ type: 'register', userId: `${users.id}` }));
+};
+
+// Send a chat message
+const sendChatMessage = (content: string) => {
+  if (!content.trim() || !socket) return;
+  socket.send(JSON.stringify({ type: 'onemessage', userId: `${users.id}`, content }));
+  message.value = '';
+  
+  nextTick(() => {
+    scrollToBottom();
+  });
+};
+
+const scrollToBottom = () => {
+  if (chatContainer.value) {
+    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+  }
+};
+
+onMounted(() => {
+  scrollToBottom();
+});
+
+watch(messages, () => {
+  nextTick(() => {
+    scrollToBottom();
+  });
+});
+
+const zaptime = (time:string) => {
+    return time.replace(/:\d+ /, ' ');
+}
+
+
+// Watch for user changes and update chat **without closing WebSocket**
+watch(
+  () => users,
+  async (newUser, oldUser) => {
+    if (!newUser || newUser.id === oldUser?.id) return;
+
+    message.value = '';
+    chatId.value = 0; // Reset chatId
+    messages.value = []; // Clear previous messages
+
+    await nextTick(); // Ensure Vue updates state before fetching messages
+
+    registerUser(); // Send new registration message to WebSocket
+  },
+  { deep: true, immediate: true }
+);
+
+// Cleanup WebSocket on component unmount
+onUnmounted(() => {
+  if (socket) {
+    socket.close();
+  }
+});
+
+onMounted(setupWebSocket);
 </script>
 
 <template>
     <div class="content">
         <!---header-->
-        <div class="profilebar">
+        <div class="profilebar" @click="showProf">
             <div class="profile">
                 <img :src="users?.imageUrl" class="profilepic" />
                 <div class="userinfo">
@@ -58,10 +156,17 @@ function sendChatMessage(content: string) {
         </div >
         <!---chatarea-->
         <div class="chatarea">
+          <div ref="chatContainer" class="chat-container">
+    <div v-for="chat in messages" :key="chat.id" :class="chat.userId === users.id ? 'messageu' : 'messagei'">
+      <!-- <span class="sender">{{ chat.userId }}</span> -->
+      <p class="themsg">{{ chat.content }}</p>
+      <span class="timestamp">{{ zaptime(new Date(chat.createdAt).toLocaleTimeString())}}</span>
+    </div>
+  </div>
         </div>
         <!--chatinput-->
         <div class="chatinputbox">
-            <button class="media">+</button>
+          
             <div class="inputbar">
                 <img src="../assets/image copy 20.png" alt="" height="16rem">
                 <input type="text" class="input" v-model = "message" />
@@ -72,6 +177,7 @@ function sendChatMessage(content: string) {
 </template>
 
 <style scoped>
+
 .media{
     background:none;
     border:none;
@@ -183,5 +289,78 @@ padding:0.6rem 1rem
     flex-direction:column;
     width:100%;
     height:100vh;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  overflow-y: auto; /* Allows scrolling */
+  max-height: 82vh; /* Adjust height as needed */
+  scroll-behavior: smooth;
+}
+
+.messageu, .messagei {
+  max-width: 30vw; /* Prevents messages from taking full width */
+  padding: 0.5rem 1rem 1rem 1rem;
+  border-radius: 0.4rem;
+  word-wrap: break-word;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  color:white;
+  position: relative;
+}
+
+.messageu {
+  align-self: flex-start; /* Aligns user messages to the left */
+  background-color: #949494;
+  margin-left: 0.8rem; /* Space from the left */
+
+}
+
+.messagei {
+  align-self: flex-end; /* Aligns received messages to the right */
+  background-color: #ff4d12;
+  margin-right: 0.8rem; /* Space from the right */
+}
+
+.chat-container::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: #bbb;
+  border-radius: 0.4rem;
+}
+
+.timestamp{
+  /* 12:07 am */
+margin-top: 0.15rem;
+position: absolute;
+right:0.5rem;
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 0.5rem;
+line-height: 0.7rem;
+/* identical to box height */
+
+color: #FFFFFF;
+}
+
+.themsg{
+
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 1rem;
+line-height: 1.2rem;
+
+color: #FFFFFF;
+
+
 }
 </style>
