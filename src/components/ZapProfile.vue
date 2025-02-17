@@ -5,6 +5,7 @@ import { type User } from '../interfaces'
 import UpdateUserInfo from './UpdateUserInfo.vue';
 
 const {profileUserID} = defineProps(['profileUserID'])
+defineEmits(['showProfile'])
 
 const aboutContent = ref("")
 const user = ref<User | null>(null);
@@ -49,7 +50,6 @@ const getUser = async () => {
         const response = await axios.get<User>('http://localhost:3000/api/users/profile', { withCredentials: true });
         user.value = response.data;
         aboutContent.value = user.value.userInfo.about
-        console.log(user.value)
     } catch (error) {
         console.error("Error fetching user:", error);
     }
@@ -60,7 +60,6 @@ const getOtherUser = async () => {
         const response = await axios.get<User>(`http://localhost:3000/api/users/profile/${profileUserID}`, { withCredentials: true });
         user.value = response.data;
         aboutContent.value = user.value.userInfo.about
-        console.log(user.value)
     } catch (error) {
         console.error("Error fetching user:", error);
     }
@@ -133,7 +132,8 @@ watch(() => profileUserID, () => {
             type="file" 
             accept="image/jpeg, image/png" 
             style="display: none" 
-            @change="handleFileChange" 
+            @change="handleFileChange"
+            v-if="profileUserID === 0" 
           />
                     <div class="infobox">
                         <div class="friends">

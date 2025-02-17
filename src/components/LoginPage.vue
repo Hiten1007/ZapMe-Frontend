@@ -17,17 +17,14 @@ const submitForm = async () => {
       password: password.value,
     }
 
-    console.log('Form data being sent:', formData)
 
-    const response = await axios.post('http://localhost:3000/api/users/loginUser', formData, {
+     await axios.post('http://localhost:3000/api/users/loginUser', formData, {
       headers: {
         'Content-Type': 'application/json',
       },
       withCredentials:true
       
     })
-    console.log('User created successfully:', response.data)
-
     router.push('/chats')
     
   } catch (error) {

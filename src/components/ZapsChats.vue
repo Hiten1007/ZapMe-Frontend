@@ -8,7 +8,7 @@ import { type AUser, type Chat } from '@/interfaces'
 
 defineProps<{ profileUserID: number }>();
 
-defineEmits(['displayConvo'])
+defineEmits(['displayConvo', 'showProfile'])
 
 const chat = ref(0)
 
@@ -66,7 +66,7 @@ onMounted(getZaps)
     <!-- Header Section (Hidden when Search Expands) -->
     <div v-if="!expanded" class="header">
       <h1 class="head">Zaps</h1>
-      <img src="../assets/image copy 8.png" class="logo" />
+    
     </div>
 
     <hr class="divider" />
@@ -173,12 +173,6 @@ margin-top:0.6rem
   transition: all 0.3s ease-in-out;
 }
 
-
-
-.logo {
-  padding-top:0.65rem; height : 1.98rem
-}
-
 .divider {
   margin: 0.5rem 0.4rem;
   background-color: #ff4d12;
@@ -205,8 +199,7 @@ line-height: 2.5rem;
 
 color: #FF4D12;
 margin:0;
-padding:0s
-
+padding:0
 
 }
 </style>

@@ -19,13 +19,11 @@ const submitForm = async () => {
       name: fullName.value,
       password: password.value,
     }
-    console.log('Form data being sent:', formData)
-    const response = await axios.post('http://localhost:3000/api/users/registerUser', formData, {
+    await axios.post('http://localhost:3000/api/users/registerUser', formData, {
       headers: {
         'Content-Type': 'application/json',
       },
     })
-    console.log('User created successfully:', response.data)
   } catch (error) {
     // Check if the error is due to the server or network
     if (axios.isAxiosError(error)) {

@@ -42,7 +42,6 @@ const setupWebSocket = () => {
   socket = new WebSocket('ws://localhost:3000');
 
   socket.onopen = () => {
-    console.log('Connected to WebSocket server');
     registerUser();
   };
 
@@ -50,14 +49,12 @@ const setupWebSocket = () => {
     const data = JSON.parse(event.data);
     switch (data.type) {
       case 'register':
-        console.log('Registered to chat:', data.id);
         chatId.value = data.id;
         await nextTick();
         getMessages();
         break;
 
       case 'onemessage':
-        console.log('New message received:', data.message);
         messages.value.push(data.message);
         emit('getZaps')
         break;
@@ -107,7 +104,7 @@ watch(messages, () => {
   nextTick(() => {
     scrollToBottom();
   });
-});
+}, {deep : true});
 
 const zaptime = (time:string) => {
     return time.replace(/:\d+ /, ' ');
