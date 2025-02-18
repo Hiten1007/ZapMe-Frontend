@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { User } from '@/interfaces';
-import axios from 'axios';
+import api from '@/api';
 
 const emit = defineEmits(['hideEditForm', 'getUser']);
 const props = defineProps<{ user: User | null }>();
@@ -23,13 +23,13 @@ watch(() => props.user, (newUser) => {
 const updateDetails = async () => {
     try{
 
-        await axios.put('http://localhost:3000/api/users/profile/user', { username : username.value, name : name.value, attributes : attributes.value}, {withCredentials: true})
+        await api.put('/api/users/profile/user', { username : username.value, name : name.value, attributes : attributes.value}, {withCredentials: true})
         
         emit('hideEditForm')
         emit('getUser')
     }
     catch(error){
-        console.log(error)
+        console.error(error)
     }
 };
 </script>

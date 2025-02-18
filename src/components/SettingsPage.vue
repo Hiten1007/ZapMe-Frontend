@@ -2,21 +2,32 @@
 import { ref, onMounted } from 'vue'
 import type { User } from '@/interfaces';
 import ZapLayoutDefault from './ZapLayoutDefault.vue'
-import axios from 'axios';
+import api from '@/api';
 
-defineEmits(['showProfile'])
+
+defineEmits(['showProfile', 'getimage'])
 defineProps<{ profileUserID: number }>();
 
 const user = ref<User | null>(null);
 
 const getUser = async () => {
     try {
-        const response = await axios.get<User>('http://localhost:3000/api/users/profile', { withCredentials: true });
+        const response = await api.get<User>('api/users/profile', { withCredentials: true });
         user.value = response.data;
     } catch (error) {
         console.error("Error fetching user:", error);
     }
 };
+
+const logOut = async () => {
+    try{
+        await api.post("/api/users/logOut", {withCredentials: true });
+        window.location.href = "/";
+    }
+    catch(error){
+        console.error(error)
+    }
+}
 
 onMounted(getUser)
 
@@ -37,7 +48,7 @@ onMounted(getUser)
                 </div>   
                 
             </div>
-            <div class="logoutdiv">
+            <div class="logoutdiv" @click="logOut">
                 <img src="../assets/image copy 24.png" class="logoutimg" />
                 <h3 class="logouttext">Log Out</h3>
             </div>
@@ -81,6 +92,8 @@ font-style: normal;
 font-weight: 400;
 font-size: 0.75rem;
 line-height: 0.9rem;
+height:0.9rem;
+overflow-y:hidden;
 /* identical to box height */
 
 color: rgba(0, 0, 0, 0.5);

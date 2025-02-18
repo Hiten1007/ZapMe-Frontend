@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div class="defaultimg"><p class="text">Soon...</p></div>
+    <div class="defaultimg"></div>
 </template>
 
 <style scoped>

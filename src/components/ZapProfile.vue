@@ -3,10 +3,12 @@ import axios from 'axios'
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { type User } from '../interfaces'
 import UpdateUserInfo from './UpdateUserInfo.vue';
+import api from '@/api';
 
 const {profileUserID} = defineProps(['profileUserID'])
-defineEmits(['showProfile'])
+const emit = defineEmits(['showProfile', 'getimage'])
 
+const errors = ref('');
 const aboutContent = ref("")
 const user = ref<User | null>(null);
 const showAbout = ref(true)
@@ -32,7 +34,7 @@ const cancelEditAbout = () => {
 const updateAbout = async () => {
     try{
 
-        await axios.put('http://localhost:3000/api/users/profile/about', { about : aboutContent.value}, {withCredentials: true})
+        await api.put('/api/users/profile/about', { about : aboutContent.value}, {withCredentials: true})
         if(user.value){
             user.value.userInfo.about = aboutContent.value
         }
@@ -40,14 +42,14 @@ const updateAbout = async () => {
         showAbout.value = true
     }
     catch(error){
-        console.log(error)
+        console.error(error)
     }
 }
 
 
 const getUser = async () => {
     try {
-        const response = await axios.get<User>('http://localhost:3000/api/users/profile', { withCredentials: true });
+        const response = await api.get<User>('/api/users/profile', { withCredentials: true });
         user.value = response.data;
         aboutContent.value = user.value.userInfo.about
     } catch (error) {
@@ -57,7 +59,7 @@ const getUser = async () => {
 
 const getOtherUser = async () => {
     try {
-        const response = await axios.get<User>(`http://localhost:3000/api/users/profile/${profileUserID}`, { withCredentials: true });
+        const response = await api.get<User>(`/api/users/profile/${profileUserID}`, { withCredentials: true });
         user.value = response.data;
         aboutContent.value = user.value.userInfo.about
     } catch (error) {
@@ -83,15 +85,15 @@ const handleFileChange = async (event: Event) => {
   formData.append('photo', file);
 
   try {
-    const response = await axios.put('http://localhost:3000/api/users/profile/profilephoto', formData, { withCredentials: true });
+    const response = await api.put('/api/users/profile/profilephoto', formData, { withCredentials: true });
     // Update the user's profile photo with the new URL returned by the backend
     if (user.value) {
-   
       user.value.userInfo.imageUrl = response.data.updatedUser.imageUrl;
-     
+      emit('getimage')
     }
   } catch (error) {
-    console.error("Error updating photo:", error);
+     console.error( error);
+        errors.value ='Error updating photo'
   }
 };
 
@@ -112,6 +114,10 @@ watch(() => profileUserID, () => {
         getUser();
     }
 })
+
+const closeErrBox = () => {
+    errors.value = ''
+}
 
 </script>
 
@@ -136,10 +142,7 @@ watch(() => profileUserID, () => {
             v-if="profileUserID === 0" 
           />
                     <div class="infobox">
-                        <div class="friends">
-                            <h2 class = friendstext>Friends</h2>
-                            <img src = "../assets/image copy 9.png" class="friendsimg" />
-                        </div>
+                       
                         <div>
                             <div class="usernamebox">
                                 <h1 class="username">{{user?.userInfo.username}}</h1>
@@ -157,29 +160,8 @@ watch(() => profileUserID, () => {
                             </div>
                         </div>
                     </div>
-                
-                   
                 </div>
-                <div class="buttonbox">
-                        <button class="buttondiv">Connect</button>
-                </div>
-            </div>
-            <div class="linksbox" style="display:none">
-                <div class = "linkstext">Connect : </div>
-                <div class="linkbox">
-                    <div class="link">
-                        <img src="../assets/image copy 11.png" alt="" class=" linkimg">
-                        <h4 class="linktext">Facebook</h4>
-                    </div>
-                    <div class="link">
-                        <img src="../assets/image copy 12.png" alt="" class="linkimg">
-                        <h4 class="linktext">Instagram</h4>
-                    </div>
-                    <div class="link">
-                        <img src="../assets/image copy 13.png" alt="" class="linkimg">
-                        <h4 class="linktext">Snapchat</h4>
-                    </div>
-                </div>
+              
             </div>
             <div class="aboutsection">
                 <div class="aboutheader">
@@ -196,10 +178,49 @@ watch(() => profileUserID, () => {
             </div>
         </div>
         <UpdateUserInfo @hideEditForm = "hideEditForm" @getUser = "getUser" v-if="editUserInfo" :user="user" />
+        <div v-if="errors" class="errorbox">
+            <img  src="../assets/image copy 15.png" @click="closeErrBox" height = "10rem" class="cross" />
+            <span class="error">{{ errors }}</span>
+            <p class="errortext">Make sure your internet connection connection is on.</p>
+        </div>
     </div>
 </template>
 
 <style scoped>
+.errortext{
+    font-family: 'Inter';
+  font-style: normal;
+  font-weight: 550;
+  font-size: 0.8rem;
+  line-height: 1rem;
+  margin-left:0.5rem;
+  color: #949494;
+  margin-top: 0.5rem;
+}
+
+.cross{
+    position: relative;
+    left:20rem
+}
+
+.error{
+    font-family:'Inter';
+    font-style: normal;
+  font-weight: 750;
+  font-size: 1rem;
+  line-height: 1.2rem;
+    color:red
+}
+
+.errorbox{
+    background-color: white;
+    border: 0.1rem solid #ff4d12;
+    position:fixed;
+    top:40vh;
+    left:40vw;
+    border-radius:1rem;
+    padding: 0.5rem;
+}
 
 .aboutcontent{
 
@@ -479,7 +500,7 @@ border:none;
 height:0.0925rem
 }
 .profilebox{
-    width:100vw
+    width:135vw
 }
 
 .profilepic{

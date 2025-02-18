@@ -8,7 +8,7 @@ import { type AUser, type Chat } from '@/interfaces'
 
 defineProps<{ profileUserID: number }>();
 
-defineEmits(['displayConvo', 'showProfile'])
+defineEmits([ 'showProfile', 'getimage'])
 
 const chat = ref(0)
 
@@ -16,7 +16,7 @@ const zaps = ref<Chat[]>([])
 
 const getZaps = async () => {
   try {
-    const response = await axios.get('http://localhost:3000/api/content/zaps', {withCredentials : true});
+    const response = await api.get('/api/content/zaps', {withCredentials : true});
     zaps.value = response.data;
 
   }
@@ -99,11 +99,12 @@ onMounted(getZaps)
 <style scoped>
 
 .zaps{
-  height:max-content;
-  overflow: scroll;
+  height:80vh;
+  overflow-y: scroll;
   display:flex;
   flex-direction: column;
   gap:0.5rem;
+  scroll-behavior: smooth;
 }
 
 .profilemsg{

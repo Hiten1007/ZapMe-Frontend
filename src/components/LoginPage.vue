@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import {useRouter} from 'vue-router'
-import axios from 'axios'
+
 const emit = defineEmits(['signUp'])
+import api from '@/api'
 
 const router = useRouter()
-
+const errors = ref('')
 const emailoruser = ref('')
 const password = ref('')
 
@@ -18,7 +19,7 @@ const submitForm = async () => {
     }
 
 
-     await axios.post('http://localhost:3000/api/users/loginUser', formData, {
+     await api.post('http://localhost:3000/api/users/loginUser', formData, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -28,52 +29,68 @@ const submitForm = async () => {
     router.push('/chats')
     
   } catch (error) {
-    // Check if the error is due to the server or network
-    if (axios.isAxiosError(error)) {
-      // Handle Axios-specific errors
-      if (error.response) {
-        console.error('Signup failed:', error.response.data.message || error.response.data)
-      } else if (error.request) {
-        console.error('No response from server:', error.request)
-      } else {
-        console.error('Axios error:', error.message)
-      }
-    } else {
-      // Handle non-Axios errors
-      console.error('Unexpected error:', error)
+    if(error instanceof Error && error.message === "no user found"){
+      errors.value='User not found'
     }
+    else{
+        errors.value='Something went wrong. Please try again later.'
+    }
+    console.error(error)
   }
 }
 </script>
 
 <template>
-  <div class="loginBox">
-    <form @submit.prevent="submitForm">
-      <div class="logincontent">
-        <div>
-          <input
-            type="text"
-            v-model="emailoruser"
-            placeholder="Username or email"
-            class="input"
-            required
-          />
+  <div>
+    <div class="loginBox">
+      <form @submit.prevent="submitForm">
+        <div class="logincontent">
+          <div>
+            <input
+              type="text"
+              v-model="emailoruser"
+              placeholder="Username or email"
+              class="input"
+              required
+            />
+          </div>
+          <div>
+            <input type="password" v-model="password" placeholder="Password" class="input" required />
+          </div>
+          <div class="buttonBox"><button class="authbutton" type="submit">Log In</button></div>
         </div>
-
-        <div>
-          <input type="password" v-model="password" placeholder="Password" class="input" required />
+        <div class="authchange">
+          Don't have an account?
+          <button class="authchangeB" @click="emit('signUp')">Sign Up</button>
         </div>
-        <div class="buttonBox"><button class="authbutton" type="submit">Log In</button></div>
-      </div>
-      <div class="authchange">
-        Don't have an account?
-        <button class="authchangeB" @click="emit('signUp')">Sign Up</button>
-      </div>
-    </form>
+      </form>
+    </div>
+    <div v-if="errors">
+          <p class="error">{{ errors }}</p>
+        </div>
   </div>
 </template>
 
 <style scoped>
+.error{
+
+
+font-family: 'Roboto';
+font-style: normal;
+font-weight: 400;
+font-size: 1rem;
+line-height: 1.2rem;
+/* or 200% */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: 0.1px;
+
+color: #FF0000;
+margin-bottom:1rem
+
+}
+
 .logincontent {
   display: flex;
   flex-direction: column;

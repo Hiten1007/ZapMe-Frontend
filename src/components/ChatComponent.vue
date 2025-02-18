@@ -1,8 +1,8 @@
 <script setup lang ="ts">
 import type { AUser, Message } from '@/interfaces'
 import { onMounted, ref, watch, onUnmounted, nextTick, inject } from 'vue'
-import axios from 'axios'
 import { key } from '@/injectkeys'
+import api from '@/api'
 
 const message = ref('')
 const { users } = defineProps(['users'])
@@ -25,8 +25,8 @@ const getMessages = async () => {
   if (!chatId.value) return;
   try {
    
-    const response = await axios.get(
-      `http://localhost:3000/api/content/zapmessages/${chatId.value}`,
+    const response = await api.get(
+      `/api/content/zapmessages/${chatId.value}`,
       { withCredentials: true }
     );
     messages.value = response.data;
@@ -39,7 +39,8 @@ const getMessages = async () => {
 const setupWebSocket = () => {
   if (socket) return; // Avoid multiple WebSocket instances
 
-  socket = new WebSocket('ws://localhost:3000');
+  const SOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:3000";
+  socket = new WebSocket(SOCKET_URL);
 
   socket.onopen = () => {
     registerUser();
@@ -55,7 +56,10 @@ const setupWebSocket = () => {
         break;
 
       case 'onemessage':
-        messages.value.push(data.message);
+        if(data.senderId === users.id || data.senderId === 'sender'){
+          messages.value.push(data.message);
+        }
+        
         emit('getZaps')
         break;
 

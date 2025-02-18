@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, provide } from 'vue'
+import { ref, provide, onMounted } from 'vue'
 import ZapsChats from './ZapsChats.vue';
-
 import ZapProfile from './ZapProfile.vue';
-import axios from 'axios'
 import type { AUser } from '@/interfaces';
 import { key } from '@/injectkeys';
 import SettingsPage from './SettingsPage.vue';
+import api from '@/api';
 
 
 const display = ref(0)
@@ -15,7 +14,7 @@ const url = ref({imageUrl : ''})
 
 const getimage = async() => {
   try{
-    const response = await axios.get('http://localhost:3000/api/content/img', {withCredentials : true})
+    const response = await api.get('/api/content/img', {withCredentials : true})
     url.value = response.data
   }
   catch(error){
@@ -23,7 +22,8 @@ const getimage = async() => {
   }
 }
 
-getimage()
+onMounted(getimage)
+
 
 const showZaps  = () : void => {
   display.value = 0;
@@ -72,6 +72,7 @@ provide(key, showotherProfile)
     }[display]" 
     @showProfile = "showProfile"
     :profileUserID="profileUser ? profileUser.id : 0"
+    @getimage="getimage"
    />
     
    

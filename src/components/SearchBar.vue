@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import axios from 'axios'
+import api from '@/api'
 
 const searchquery = ref ('')
 const users = ref<{id : number, username : string, imageUrl : string, name : string}[]>([])
@@ -16,8 +16,7 @@ const fetchUsers = async() => {
     return;
   }
   try{
-    const link = `http://localhost:3000/api/content/search?q=${searchquery.value}`
-    const response = await axios.get(link, {
+    const response = await api.get(`/api/content/search?q=${searchquery.value}`, {
       withCredentials :true
     })
     users.value =response.data
