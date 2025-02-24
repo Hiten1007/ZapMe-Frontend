@@ -14,7 +14,7 @@ const url = ref({imageUrl : ''})
 
 const getimage = async() => {
   try{
-    const response = await api.get('api/content/img', {withCredentials : true})
+    const response = await api.get('/api/content/img', {withCredentials : true})
     url.value = response.data
   }
   catch(error){

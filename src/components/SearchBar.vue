@@ -16,7 +16,7 @@ const fetchUsers = async() => {
     return;
   }
   try{
-    const response = await api.get(`api/content/search?q=${searchquery.value}`, {
+    const response = await api.get(`/api/content/search?q=${searchquery.value}`, {
       withCredentials :true
     })
     users.value =response.data

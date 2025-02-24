@@ -12,7 +12,7 @@ const user = ref<User | null>(null);
 
 const getUser = async () => {
     try {
-        const response = await api.get<User>('api/users/profile', { withCredentials: true });
+        const response = await api.get<User>('/api/users/profile', { withCredentials: true });
         user.value = response.data;
     } catch (error) {
         console.error("Error fetching user:", error);
@@ -21,7 +21,7 @@ const getUser = async () => {
 
 const logOut = async () => {
     try{
-        await api.post("api/users/logOut", {withCredentials: true });
+        await api.post("/api/users/logOut", {withCredentials: true });
         window.location.href = "/";
     }
     catch(error){

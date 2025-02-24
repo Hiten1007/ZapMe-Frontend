@@ -39,7 +39,8 @@ const getMessages = async () => {
 const setupWebSocket = () => {
   if (socket) return; // Avoid multiple WebSocket instances
 
-  const SOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || "ws://localhost:3000";
+  const websocketURL = import.meta.env.VITE_WEBSOCKET_URL || "wss://localhost:3000";
+const SOCKET_URL = websocketURL.startsWith("wss") ? websocketURL : `wss://${websocketURL}`;
   socket = new WebSocket(SOCKET_URL);
 
   socket.onopen = () => {
