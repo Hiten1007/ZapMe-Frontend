@@ -33,7 +33,7 @@ const cancelEditAbout = () => {
 const updateAbout = async () => {
     try{
 
-        await api.put('/api/users/profile/about', { about : aboutContent.value}, {withCredentials: true})
+        await api.put('api/users/profile/about', { about : aboutContent.value}, {withCredentials: true})
         if(user.value){
             user.value.userInfo.about = aboutContent.value
         }
@@ -48,7 +48,7 @@ const updateAbout = async () => {
 
 const getUser = async () => {
     try {
-        const response = await api.get<User>('/api/users/profile', { withCredentials: true });
+        const response = await api.get<User>('api/users/profile', { withCredentials: true });
         user.value = response.data;
         aboutContent.value = user.value.userInfo.about
     } catch (error) {
@@ -58,7 +58,7 @@ const getUser = async () => {
 
 const getOtherUser = async () => {
     try {
-        const response = await api.get<User>(`/api/users/profile/${profileUserID}`, { withCredentials: true });
+        const response = await api.get<User>(`api/users/profile/${profileUserID}`, { withCredentials: true });
         user.value = response.data;
         aboutContent.value = user.value.userInfo.about
     } catch (error) {

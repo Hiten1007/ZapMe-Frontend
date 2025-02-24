@@ -23,7 +23,7 @@ watch(() => props.user, (newUser) => {
 const updateDetails = async () => {
     try{
 
-        await api.put('/api/users/profile/user', { username : username.value, name : name.value, attributes : attributes.value}, {withCredentials: true})
+        await api.put('api/users/profile/user', { username : username.value, name : name.value, attributes : attributes.value}, {withCredentials: true})
         
         emit('hideEditForm')
         emit('getUser')

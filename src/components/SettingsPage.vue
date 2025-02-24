@@ -21,7 +21,7 @@ const getUser = async () => {
 
 const logOut = async () => {
     try{
-        await api.post("/api/users/logOut", {withCredentials: true });
+        await api.post("api/users/logOut", {withCredentials: true });
         window.location.href = "/";
     }
     catch(error){

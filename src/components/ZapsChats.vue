@@ -16,7 +16,7 @@ const zaps = ref<Chat[]>([])
 
 const getZaps = async () => {
   try {
-    const response = await api.get('/api/content/zaps', {withCredentials : true});
+    const response = await api.get('api/content/zaps', {withCredentials : true});
     zaps.value = response.data;
 
   }

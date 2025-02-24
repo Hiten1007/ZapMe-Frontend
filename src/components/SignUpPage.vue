@@ -22,7 +22,7 @@ const submitForm = async () => {
       name: fullName.value,
       password: password.value,
     }
-    await api.post('/api/users/registerUser', formData, {
+    await api.post('api/users/registerUser', formData, {
       headers: {
         'Content-Type': 'application/json',
       },
