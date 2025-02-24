@@ -33,8 +33,6 @@ export  interface Message {
  export interface Chat {
    id: number;
    chatId: string;
-   isGroup: boolean;
-   groupName?: string | null;
    latestMessageAt?: string | null;
    messages: Message[];
    otherUser: AUser;

@@ -1,5 +1,4 @@
 <script setup lang = "ts">
-import axios from 'axios'
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { type User } from '../interfaces'
 import UpdateUserInfo from './UpdateUserInfo.vue';

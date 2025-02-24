@@ -19,7 +19,7 @@ const submitForm = async () => {
     }
 
 
-     await api.post('http://localhost:3000/api/users/loginUser', formData, {
+     await api.post('/api/users/loginUser', formData, {
       headers: {
         'Content-Type': 'application/json',
       },

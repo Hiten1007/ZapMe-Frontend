@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import SearchBar from './SearchBar.vue'
 import ZapLayoutDefault from './ZapLayoutDefault.vue'
 import ChatComponent from './ChatComponent.vue'
 import { type AUser, type Chat } from '@/interfaces'
+import api from '@/api'
 
 defineProps<{ profileUserID: number }>();
 
